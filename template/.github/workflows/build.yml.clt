@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        git fetch --prune --unshallow --tags
+        echo exit code $?
+        git tag --list
+        echo "APP_VERSION=$(git describe --tags --dirty=+)"
+
+    - name: Get short git commit hash
+      id: hash
+      run: echo "::set-output name=hash::${GITHUB_SHA::7}"
+
+    - name: Get version number
+      id: version
+      run: echo "::set-output name=version::$(git describe --tags --dirty=+)"
+
+    - name: Get base hash
+      id: base-hash
+      run: echo "::set-output name=base-hash::$(sha512sum <%= @ app-name %>.asd | cut -b 1-8)"
+
+    - name: Test if base exists
+      id: base-exists
+      run: echo "::set-output name=base-exists::$(podman manifest inspect <%= @ container-registry %>/<%= @ app-name %>-base:${{ steps.base-hash.outputs.base-hash }} > /dev/null 2>&1 && echo 'EXISTS')"
+
+    - name: Prepare base image
+      id: build-base
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: <%= @ app-name %>-base
+        tags: ${{ steps.base-hash.outputs.base-hash }} latest
+        dockerfiles: |
+          Dockerfile.base
+      if: ${{ steps.base-exists.outputs.base-exists != 'EXISTS' }}
+
+    - name: Push Base To quay.io
+      id: push-base-to-quay
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-base.outputs.image }}
+        tags: ${{ steps.build-base.outputs.tags }}
+        registry: <%= @ container-registry %>
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+      if: ${{ steps.base-exists.outputs.base-exists != 'EXISTS' }}
+
+    - name: Buildah Action
+      id: build-image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: <%= @ app-name %>
+        tags: latest ${{ steps.hash.outputs.hash }} ${{ steps.version.outputs.version }}
+        dockerfiles: |
+          Dockerfile
+        build-args: |
+          APP_VERSION=${{ steps.version.outputs.version }}
+
+    - name: Push to registry
+      id: push-to-quay
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-image.outputs.image }}
+        tags: ${{ steps.build-image.outputs.tags }}
+        registry: <%= @ container-registry %>
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Print image url
+      run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
+
+    - name: Test
+      run: |
+        docker-compose -f .ci/docker-compose.yml up -d
+        ip=$(docker container inspect --format '{{ (index .NetworkSettings.Networks "ci_default").IPAddress }}' ci_<%= @ app-name %>_1)
+        if [ -z "${ip:-}" ]; then
+            err "Container ${cid} has no IP address"
+            return 1
+        fi
+        timeout -s TERM 45 bash -c \
+          'while [[ "$(curl -s -o /dev/null -L -w ''%{http_code}'' ${0})" != "200" ]];\
+            do echo "Waiting for ${0}" && sleep 2;\
+           done' http://$ip:8080/healthz
+
+        ./.ci/test.sh $ip:8080 || true
+        docker logs ci_<%= @ app-name %>_1

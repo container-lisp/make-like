@@ -1,0 +1,7 @@
+FROM <%= @ container-registry %>/<%= @ app-name %>-base:latest
+
+COPY . /tmp/src
+ARG APP_VERSION=APP_VERSION
+ENV APP_VERSION=${APP_VERSION}
+RUN APP_SYSTEM_NAME=<%= @ app-name %> /usr/libexec/s2i/assemble
+CMD DEV_BACKEND=slynk APP_SYSTEM_NAME=<%= @ app-name %> APP_EVAL="\"(<%= @ app-name %>:start-server)\"" /usr/libexec/s2i/run

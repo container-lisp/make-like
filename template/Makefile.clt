@@ -1,0 +1,10 @@
+all:
+
+run:
+	sbcl --eval '(pushnew (truename "./src") ql:*local-project-directories* )' \
+	     --eval '(ql:register-local-projects)' \
+	     --eval '(ql:quickload :<%= @ app-name %>)' \
+	     --eval '(<%= @ app-name %>:start-server)'
+
+clean:
+	@rm -rf system-index.txt *~

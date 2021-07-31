@@ -1,0 +1,8 @@
+<%= @ source-header %>
+
+;;; package.lisp
+
+(defpackage #:<%= @ app-name %>
+  (:use #:cl)
+  (:shadow #:package)
+  (:export #:start-server #:stop-server))

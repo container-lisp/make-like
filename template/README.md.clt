@@ -1,0 +1,3 @@
+[![Build Status](https://github.com/<%= @ github-account %>/<%= @ app-name %>/actions/workflows/build.yml/badge.svg)](https://github.com/<%= @ github-account %>/<%= @ app-name %>/actions)
+
+# <%= @ app-name %>

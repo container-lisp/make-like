@@ -1,0 +1,21 @@
+FROM quay.io/containerlisp/lisp-10-ubi8
+
+# Make any changes to the base image here.  For instance, if you need
+# additional software or directories, do something like...
+#
+# USER 0
+# RUN mkdir -p /var/myapp && chown -R 1001:0 /var/myapp
+# RUN dnf install -y git && dnf clean all
+# USER 1001
+
+# Preload dependencies into this base image so we aren't always
+# hitting the quicklisp archives.
+
+COPY <%= @ app-name %>.asd /tmp
+
+RUN dnf install -y git && \
+    sbcl --eval '(let* ((ds (with-open-file (stream "/tmp/<%= @ app-name %>.asd") \
+                              (read stream)))                                     \
+                        (pos (position :DEPENDS-ON ds)))                          \
+                   (dolist (p (nth (+ pos 1) ds))                                 \
+                     (ql:quickload p)))'

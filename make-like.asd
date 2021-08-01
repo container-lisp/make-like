@@ -6,6 +6,7 @@
   :license "Apache"
   :depends-on (#:cl-template
                #:log4cl
+               #:cl-fad
 	       #:unix-opts
                #:str
 	       #:alexandria

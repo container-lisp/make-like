@@ -7,7 +7,7 @@ make-like: Makefile template.tar.gz
 		--entry "make-like:main"
 
 template.tar.gz: clean
-	tar cvfz template.tar.gz template
+	tar cvfz template.tar.gz _template
 
 clean:
 	-rm -f make-like

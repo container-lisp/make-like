@@ -29,24 +29,28 @@
      (when it
        ,@body)))
 
+(defun fatal-error (&rest format-string-and-parameters)
+  (format t "Error: ~A~%"
+          (apply #'format (cons nil format-string-and-parameters)))
+  (finish-output)
+  (sb-ext:exit :abort t))
+
 (defun make-application (&key (app-name "fixme")
                            (author "Fix Me <fixme@example.com>")
                            (description "FIXME")
                            (source-header ";;; FIXME source-header")
                            (github-account "fixme-github-account")
                            (container-registry "quay.io/fixme"))
+  (when (fad:directory-exists-p app-name)
+    (fatal-error "Directory '~A' already exists" app-name))
   (let ((app-dir (pathname (str:concat app-name "/"))))
-    (handler-case
-        (truename (ensure-directories-exist app-dir :verbose t))
-      (error (e)
-        (log:error "Can't create directory ~A" app-name)
-        nil))
+    (fad:delete-directory-and-files "_template" :if-does-not-exist :IGNORE)
     (archive::extract-files-from-archive
      (archive:open-archive 'archive:tar-archive
 			     (chipz:make-decompressing-stream 'chipz:gzip
 							      (flexi-streams:make-in-memory-input-stream *template*))
 			     :direction :input))
-    (rename-file "template" app-name)
+    (rename-file "_template" app-name)
     (uiop:with-current-directory (app-dir)
       (cl-fad:walk-directory
        #p"." (lambda (filepath)

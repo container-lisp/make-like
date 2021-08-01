@@ -1,0 +1,8 @@
+(make-like:make-application
+  :app-name "myapp"
+  :author "Anthony Green <green@moxielogic.com"
+  :description "A simple sample application"
+  :source-header
+";;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: MYAPP; Base: 10 -*-"
+  :github-account "atgreen"
+  :container-registry "quay.io/moxielogic/myapp")

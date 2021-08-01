@@ -18,7 +18,7 @@
    :prefix "make-like - copyright (C) 2021 Anthony Green <green@moxielogic.com>"
    :suffix "Distributed under the terms of MIT License"
    :usage-of "make-like"
-   :args     "roo-file"))
+   :args     "likefile"))
 
 (defun unknown-option (condition)
   (format t "warning: ~s option is unknown!~%" (opts:option condition))
@@ -29,7 +29,12 @@
      (when it
        ,@body)))
 
-(defun make-application (app-name values)
+(defun make-application (&key (app-name "fixme")
+                           (author "Fix Me <fixme@example.com>")
+                           (description "FIXME")
+                           (source-header ";;; FIXME source-header")
+                           (github-account "fixme-github-account")
+                           (container-registry "quay.io/fixme"))
   (let ((app-dir (pathname (str:concat app-name "/"))))
     (handler-case
         (truename (ensure-directories-exist app-dir :verbose t))
@@ -52,7 +57,13 @@
 				         :direction :output
 				         :if-exists :supersede
 				         :if-does-not-exist :create)
-	           (princ (funcall (cl-template:compile-template template) values)
+	           (princ (funcall (cl-template:compile-template template)
+                                   (list :app-name app-name
+                                         :author author
+                                         :description description
+                                         :source-header source-header
+                                         :github-account github-account
+                                         :container-registry container-registry))
                           stream)))
                (delete-file filepath))
        :follow-symlinks nil

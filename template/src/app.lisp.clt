@@ -88,8 +88,8 @@
 ;; Render the home page.
 (easy-routes:defroute index ("/") ()
   (markup:write-html
-   <page-template title="foo">
-   This is the index page of my new app, version ,(progn +foo-version+).
+   <page-template title="<%= @ app-name %>">
+   This is the index page of my new app, version ,(progn +<%= @ app-name %>-version+).
    </page-template>))
 
 ;;; END ROUTE DEFINITIONS -----------------------------------------------------

@@ -1,6 +1,6 @@
 version: '3.2'
 services:
-  rlgl-server:
+  <%= @ app-name %>:
     image: "quay.io/moxielogic/<%= @ app-name %>:latest"
     ports:
       - "8080:8080"

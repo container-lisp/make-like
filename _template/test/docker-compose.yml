@@ -1,0 +1,10 @@
+version: '3.2'
+services:
+  rlgl-server:
+    image: "quay.io/moxielogic/<%= @ app-name %>:latest"
+    ports:
+      - "8080:8080"
+    volumes:
+      - type: bind
+        source: /home/runner/work/<%= @ app-name %>/<%= @ app-name %>/test/config.ini
+        target: /etc/<%= @ app-name %>/config.ini

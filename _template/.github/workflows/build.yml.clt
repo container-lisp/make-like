@@ -86,7 +86,7 @@ jobs:
     - name: Test
       run: |
         docker-compose -f .ci/docker-compose.yml up -d
-        ip=$(docker container inspect --format '{{ (index .NetworkSettings.Networks "ci_default").IPAddress }}' ci_<%= @ app-name %>_1)
+        ip=$(docker container inspect --format '{{ (index .NetworkSettings.Networks "test_default").IPAddress }}' test_<%= @ app-name %>_1)
         if [ -z "${ip:-}" ]; then
             err "Container ${cid} has no IP address"
             return 1
@@ -97,4 +97,4 @@ jobs:
            done' http://$ip:8080/healthz
 
         ./.ci/test.sh $ip:8080 || true
-        docker logs ci_<%= @ app-name %>_1
+        docker logs test_<%= @ app-name %>_1

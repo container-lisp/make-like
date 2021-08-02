@@ -12,9 +12,10 @@ FROM quay.io/containerlisp/lisp-10-ubi8
 # hitting the quicklisp archives.
 
 COPY src/<%= @ app-name %>.asd /tmp
-
-RUN dnf install -y git && \
-    sbcl --eval '(let* ((ds (with-open-file (stream "/tmp/<%= @ app-name %>.asd") \
+USER 0
+RUN dnf install -y git
+USER 1001
+RUN sbcl --eval '(let* ((ds (with-open-file (stream "/tmp/<%= @ app-name %>.asd") \
                               (read stream)))                                     \
                         (pos (position :DEPENDS-ON ds)))                          \
                    (dolist (p (nth (+ pos 1) ds))                                 \

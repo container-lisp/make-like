@@ -11,7 +11,7 @@ FROM quay.io/containerlisp/lisp-10-ubi8
 # Preload dependencies into this base image so we aren't always
 # hitting the quicklisp archives.
 
-COPY <%= @ app-name %>.asd /tmp
+COPY src/<%= @ app-name %>.asd /tmp
 
 RUN dnf install -y git && \
     sbcl --eval '(let* ((ds (with-open-file (stream "/tmp/<%= @ app-name %>.asd") \

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: <%= @ app-name %>-pod
+  name: <%= @ app-name %>-pod
+spec:
+  containers:
+  - name: <%= @ app-name %>
+    image: quay.io/moxielogic/<%= @ app-name %>:latest
+    ports:
+    - containerPort: 8080
+      hostPort: 8080
+      protocol: TCP
+    volumeMounts:
+    - mountPath: /etc/<%= @ app-name %>
+      name: <%= @ app-name %>-config
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities: {}
+      privileged: false
+      readOnlyRootFilesystem: false
+      seLinuxOptions: {}
+  volumes:
+  - name: <%= @ app-name %>-config
+    hostPath:
+      path: /home/runner/work/<%= @ app-name %>/<%= @ app-name %>/test/config.ini
+      type: File
+status: {}

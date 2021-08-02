@@ -32,7 +32,7 @@ jobs:
 
     - name: Get base hash
       id: base-hash
-      run: echo "::set-output name=base-hash::$(sha512sum <%= @ app-name %>.asd | cut -b 1-8)"
+      run: echo "::set-output name=base-hash::$(sha512sum src/<%= @ app-name %>.asd | cut -b 1-8)"
 
     - name: Test if base exists
       id: base-exists
@@ -85,16 +85,12 @@ jobs:
 
     - name: Test
       run: |
-        docker-compose -f .ci/docker-compose.yml up -d
-        ip=$(docker container inspect --format '{{ (index .NetworkSettings.Networks "test_default").IPAddress }}' test_<%= @ app-name %>_1)
-        if [ -z "${ip:-}" ]; then
-            err "Container ${cid} has no IP address"
-            return 1
-        fi
+        podman play kube test/test-pod.yml
         timeout -s TERM 45 bash -c \
           'while [[ "$(curl -s -o /dev/null -L -w ''%{http_code}'' ${0})" != "200" ]];\
             do echo "Waiting for ${0}" && sleep 2;\
-           done' http://$ip:8080/healthz
-
-        ./.ci/test.sh $ip:8080 || true
-        docker logs test_<%= @ app-name %>_1
+           done' http://localhost:8080/health
+        ./test/test.sh localhost:8080 || true
+        curl -s http://localhost:8080
+        echo "==== Container Logs ================================"
+        podman logs sample-pod-sample

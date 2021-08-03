@@ -3,9 +3,9 @@
 # <%= @ app-name %>
 
 * Add the following repository secrets to the github.com repo, under Setting > Secrets > New Repository Secret:
-** `REGISTRY_USERNAME`: your container registry username
-** `REGISTRY_PASSWORD`: your container registry password
+  * `REGISTRY_USERNAME`: your container registry username
+  * `REGISTRY_PASSWORD`: your container registry password
 
 * Create two container repositories at `<%= @ container-registry %>`:
-** `<%= @ container-registry %>/<%= @ app-name %>-base`: a base image to cache quicklisp contents and additional OS packages
-** `<%= @ container-registry %>/<%= @ app-name %>`: the final application
+  * `<%= @ container-registry %>/<%= @ app-name %>-base`: a base image to cache quicklisp contents and additional OS packages
+  * `<%= @ container-registry %>/<%= @ app-name %>`: the final application

@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Build image
+    name: Build, test and public image
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -48,7 +48,7 @@ jobs:
           build/Dockerfile.base
       if: ${{ steps.base-exists.outputs.base-exists != 'EXISTS' }}
 
-    - name: Push Base To quay.io
+    - name: Push base to quay.io
       id: push-base-to-quay
       uses: redhat-actions/push-to-registry@v2
       with:
@@ -59,7 +59,7 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
       if: ${{ steps.base-exists.outputs.base-exists != 'EXISTS' }}
 
-    - name: Buildah Action
+    - name: Build application image
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
@@ -69,6 +69,20 @@ jobs:
           build/Dockerfile
         build-args: |
           APP_VERSION=${{ steps.version.outputs.version }}
+
+    - name: Test
+      run: |
+        podman play kube test/test-pod.yml
+        timeout -s TERM 45 bash -c \
+          'while [[ "$(curl -s -o /dev/null -L -w ''%{http_code}'' ${0})" != "200" ]];\
+            do echo "Waiting for ${0}" && sleep 2;\
+           done' http://localhost:8080/health
+        ./test/test.sh localhost:8080 || \
+        (EXIT_CODE=$?
+         curl -s http://localhost:8080
+         echo "==== Container Logs ================================"
+         podman logs <%= @ app-name %>-pod-<%= @ app-name %>
+         exit $EXIT_CODE)
 
     - name: Push to registry
       id: push-to-quay
@@ -82,15 +96,3 @@ jobs:
 
     - name: Print image url
       run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
-
-    - name: Test
-      run: |
-        podman play kube test/test-pod.yml
-        timeout -s TERM 45 bash -c \
-          'while [[ "$(curl -s -o /dev/null -L -w ''%{http_code}'' ${0})" != "200" ]];\
-            do echo "Waiting for ${0}" && sleep 2;\
-           done' http://localhost:8080/health
-        ./test/test.sh localhost:8080 || true
-        curl -s http://localhost:8080
-        echo "==== Container Logs ================================"
-        podman logs sample-pod-sample

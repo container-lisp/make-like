@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
   - name: <%= @ app-name %>
-    image: quay.io/moxielogic/<%= @ app-name %>:latest
+    image: localhost/<%= @ app-name %>:latest
     ports:
     - containerPort: 8080
       hostPort: 8080

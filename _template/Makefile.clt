@@ -12,7 +12,7 @@ run:
 	     --eval '(<%= @ app-name %>:start-server)'
 
 podman:
-	test/podman-run.sh
+	sh test/podman-run.sh
 
 podman-stop:
 	-podman pod stop <%= @ app-name %>-pod

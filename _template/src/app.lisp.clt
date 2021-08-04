@@ -152,7 +152,7 @@
     (setf hunchentoot:*show-lisp-errors-p* t)
     (setf hunchentoot:*show-lisp-backtraces-p* t)
 
-    (log:info "Starting sample version ~A" +sample-version+)
+    (log:info "Starting <%= @ app-name %> version ~A" +<%= @ app-name %>-version+)
 
     ;; Read the built-in configuration settings.
     (setf *default-config* (cl-toml:parse +default-config-text+))
@@ -184,10 +184,10 @@
 
       (log:info "Starting server")
 
-      (setf hunchentoot:*dispatch-table* +sample-dispatch-table+)
-      (setf prom:*default-registry* *sample-registry*)
+      (setf hunchentoot:*dispatch-table* +<%= @ app-name %>-dispatch-table+)
+      (setf prom:*default-registry* *<%= @ app-name %>-registry*)
       (setf *print-pretty* nil)
-      (setf *handler* (let ((exposer (make-instance 'exposer-acceptor :registry *sample-registry* :port 9101)))
+      (setf *handler* (let ((exposer (make-instance 'exposer-acceptor :registry *<%= @ app-name %>-registry* :port 9101)))
                         (hunchentoot:start (make-instance 'application
                                                           :document-root #p"./"
                                                           :port 8080

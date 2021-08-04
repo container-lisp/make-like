@@ -11,7 +11,7 @@ run:
 	     --eval '(ql:quickload :<%= @ app-name %>)' \
 	     --eval '(<%= @ app-name %>:start-server)'
 
-podman:
+podman-start:
 	sh test/podman-run.sh
 
 podman-stop:

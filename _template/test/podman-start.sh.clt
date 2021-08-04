@@ -16,8 +16,9 @@ timeout -s TERM 45 bash -c 'while [[ "$(curl -s -o /dev/null -L -w ''%{http_code
 
 echo ===========================================================================
 echo
-echo Application running on http://localhost:8080
-echo Promethus metrics are available on http://localhost:9101/metrics
+echo Application: http://localhost:8080
+echo
+echo Prometheus : http://localhost:9101/metrics
 echo
 echo Use emacs to \'sly-connect\' to localhost port 4005
 echo

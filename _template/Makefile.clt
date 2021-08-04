@@ -1,13 +1,22 @@
 all:
-	echo "Supported targets:"
-	echo "	clean	 - clean the source tree"
-	echo "	run	 - run locally"
+	@echo "Supported targets:"
+	@echo " clean		- clean the source tree"
+	@echo " podman		- run in podman using test/test-pod.yml"
+	@echo " podman-stop	- stop the test pod"
+	@echo " run		- run locally"
 
 run:
 	sbcl --eval '(pushnew (truename "./src") ql:*local-project-directories* )' \
 	     --eval '(ql:register-local-projects)' \
 	     --eval '(ql:quickload :<%= @ app-name %>)' \
 	     --eval '(<%= @ app-name %>:start-server)'
+
+podman:
+	test/podman-run.sh
+
+podman-stop:
+	-podman pod stop <%= @ app-name %>-pod
+	-podman pod rm <%= @ app-name %>-pod
 
 clean:
 	@rm -rf system-index.txt *~

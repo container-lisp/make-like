@@ -12,6 +12,9 @@ spec:
     - containerPort: 8080
       hostPort: 8080
       protocol: TCP
+    - containerPort: 4005
+      hostPort: 4005
+      protocol: TCP
     volumeMounts:
     - mountPath: /etc/<%= @ app-name %>
       name: <%= @ app-name %>-config

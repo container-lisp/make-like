@@ -1,7 +1,7 @@
 all:
 	@echo "Supported targets:"
 	@echo " clean		- clean the source tree"
-	@echo " podman		- run in podman using test/test-pod.yml"
+	@echo " podman-start	- run in podman using test/test-pod.yml"
 	@echo " podman-stop	- stop the test pod"
 	@echo " run		- run locally"
 
@@ -12,7 +12,7 @@ run:
 	     --eval '(<%= @ app-name %>:start-server)'
 
 podman-start:
-	sh test/podman-run.sh
+	sh test/podman-start.sh
 
 podman-stop:
 	-podman pod stop <%= @ app-name %>-pod

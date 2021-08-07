@@ -77,7 +77,7 @@ jobs:
           'while [[ "$(curl -s -o /dev/null -L -w ''%{http_code}'' ${0})" != "200" ]];\
             do echo "Waiting for ${0}" && sleep 2;\
            done' http://localhost:8080/health
-        ./test/test.sh localhost:8080 || \
+        sh ./test/test.sh localhost:8080 || \
         (EXIT_CODE=$?
          curl -s http://localhost:8080
          echo "==== Container Logs ================================"

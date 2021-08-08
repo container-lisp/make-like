@@ -19,7 +19,7 @@ spec:
       hostPort: 9101
       protocol: TCP
     volumeMounts:
-    - mountPath: /etc/<%= @ app-name %>
+    - mountPath: /etc/<%= @ app-name %>/config.ini
       name: <%= @ app-name %>-config
     resources: {}
     securityContext:
